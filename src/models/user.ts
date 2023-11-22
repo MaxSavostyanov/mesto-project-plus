@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
 
 interface IUser {
-  name: string;
-  about: string;
-  avatar: string;
+  name?: string;
+  about?: string;
+  avatar?: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -25,4 +25,4 @@ const UserSchema = new Schema<IUser>({
   },
 });
 
-export default model<IUser>('User', UserSchema);
+export default model<IUser>('user', UserSchema);

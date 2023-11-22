@@ -1,10 +1,10 @@
-import { model, Schema, Types } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
 interface ICard {
   name: string;
   link: string;
   owner: Schema.Types.ObjectId;
-  likes: [Types.ObjectId];
+  likes: [Schema.Types.ObjectId];
   createdAt: Date;
 }
 
@@ -25,7 +25,8 @@ const CardSchema = new Schema<ICard>({
     required: true,
   },
   likes: {
-    type: [Types.ObjectId],
+    type: [Schema.Types.ObjectId],
+    ref: 'user',
     default: [],
     required: true,
   },
@@ -35,4 +36,4 @@ const CardSchema = new Schema<ICard>({
   },
 });
 
-export default model<ICard>('Card', CardSchema);
+export default model<ICard>('card', CardSchema);
