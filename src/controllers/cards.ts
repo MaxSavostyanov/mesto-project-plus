@@ -36,3 +36,24 @@ export const deleteCard = (req: Request, res: Response) => {
       res.status(500).send({ message: err.message });
     });
 };
+
+const updateLike = (method: string, req: Request, res: Response) => {
+  const userId = req.user._id;
+  const { cardId } = req.params;
+
+  Card.findByIdAndUpdate(
+    cardId,
+    { [method]: { likes: userId } },
+    { new: true },
+  )
+    .then((card) => {
+      res.status(200).send(card);
+    })
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
+export const likeCard = (req: Request, res: Response) => updateLike('$addToSet', req, res);
+
+export const dislikeCard = (req: Request, res: Response) => updateLike('$pull', req, res);
