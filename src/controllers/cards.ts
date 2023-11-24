@@ -40,7 +40,15 @@ export const deleteCard: RequestHandler = (req, res, next) => {
 
       res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId} удалена!`, card });
     })
-    .catch(next);
+    .catch((err) => {
+      let error = err;
+
+      if (err.name === 'CastError') {
+        error = new BadRequestError('Передан невалидный ID');
+      }
+
+      next(error);
+    });
 };
 
 const updateLike: RequestHandler = (req, res, next) => {
