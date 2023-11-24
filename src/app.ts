@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import router from './routes';
 import errorHandler from './middlewares/error-handler';
+import NotFoundError from './errors/not-found-error';
 
 const { PORT = 3000 } = process.env;
 
@@ -18,6 +19,10 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 });
 
 app.use(router);
+
+app.use(() => {
+  throw new NotFoundError('Error 404');
+});
 
 app.use(errorHandler);
 

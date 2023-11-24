@@ -1,11 +1,11 @@
 import type { RequestHandler } from 'express';
 import Card from '../models/card';
 import NotFoundError from '../errors/not-found-error';
-import BadRequestError from '../errors/bad-request-error';
 import STATUS_CODES from '../constants/status-code';
 
 export const getCards: RequestHandler = (req, res, next) => {
   Card.find({})
+    .orFail(new NotFoundError('Карточек нет!'))
     .then((cards) => {
       res.status(STATUS_CODES.OK).send({ cards });
     })
@@ -18,8 +18,6 @@ export const createCard: RequestHandler = (req, res, next) => {
 
   return Card.create({ name, link, owner: userId })
     .then((card) => {
-      if (!card) throw new BadRequestError();
-
       res.status(STATUS_CODES.CREATED).send({ message: 'Новая карточка создана!', card });
     })
     .catch(next);
@@ -29,9 +27,8 @@ export const deleteCard: RequestHandler = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
+    .orFail(new NotFoundError(`Карточка с id(${cardId}) не найдена!`))
     .then((card) => {
-      if (!card) throw new NotFoundError(`Карточка с id(${cardId} не найден!`);
-
       res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId} удалена!`, card });
     })
     .catch(next);
@@ -47,9 +44,8 @@ const updateLike: RequestHandler = (req, res, next) => {
     { [method]: { likes: userId } },
     { new: true },
   )
+    .orFail(new NotFoundError(`Карточка с id(${cardId}) не найдена!`))
     .then((card) => {
-      if (!card) throw new NotFoundError(`Карточка с id(${cardId} не найден!`);
-
       res.status(STATUS_CODES.OK)
         .send({
           message: `Лайк ${method === '$addToSet'
@@ -58,13 +54,7 @@ const updateLike: RequestHandler = (req, res, next) => {
           card,
         });
     })
-    .catch((err) => {
-      let error = err;
-
-      if (err.name === 'ValidationError') error = new BadRequestError();
-
-      next(error);
-    });
+    .catch(next);
 };
 
 export const likeCard: RequestHandler = (req, res, next) => {

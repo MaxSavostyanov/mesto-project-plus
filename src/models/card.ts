@@ -28,7 +28,6 @@ const CardSchema = new Schema<ICard>({
     type: [Schema.Types.ObjectId],
     ref: 'user',
     default: [],
-    required: true,
   },
   createdAt: {
     type: Date,
