@@ -20,7 +20,15 @@ export const createCard: RequestHandler = (req, res, next) => {
     .then((card) => {
       res.status(STATUS_CODES.CREATED).send({ message: 'Новая карточка создана!', card });
     })
-    .catch(next);
+    .catch((err) => {
+      let error = err;
+
+      if (err.name === 'ValidationError') {
+        error = new BadRequestError();
+      }
+
+      next(error);
+    });
 };
 
 export const deleteCard: RequestHandler = (req, res, next) => {

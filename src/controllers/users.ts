@@ -32,7 +32,15 @@ export const createUser: RequestHandler = (req, res, next) => {
     .then((user) => {
       res.status(STATUS_CODES.CREATED).send({ message: 'Новый пользователь создан!', user });
     })
-    .catch(next);
+    .catch((err) => {
+      let error = err;
+
+      if (err.name === 'ValidationError') {
+        error = new BadRequestError();
+      }
+
+      next(error);
+    });
 };
 
 const updateUser: RequestHandler = (req, res, next) => {
