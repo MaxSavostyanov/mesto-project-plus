@@ -20,6 +20,10 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 
 app.use(router);
 
+app.use(() => {
+  throw new NotFoundError('Error 404');
+});
+
 app.use(errorHandler);
 
 app.listen(PORT, () => {
