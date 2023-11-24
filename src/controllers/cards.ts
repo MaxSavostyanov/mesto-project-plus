@@ -1,45 +1,46 @@
-import { Request, Response } from 'express';
-
+import type { RequestHandler } from 'express';
 import Card from '../models/card';
+import NotFoundError from '../errors/not-found-error';
+import BadRequestError from '../errors/bad-request-error';
+import STATUS_CODES from '../constants/status-code';
 
-export const getCards = (req: Request, res: Response) => {
+export const getCards: RequestHandler = (req, res, next) => {
   Card.find({})
     .then((cards) => {
-      res.send(cards);
+      res.status(STATUS_CODES.OK).send({ cards });
     })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-export const createCard = (req: Request, res: Response) => {
+export const createCard: RequestHandler = (req, res, next) => {
   const { name, link } = req.body;
-  const id = req.user._id;
+  const userId = req.user._id;
 
-  return Card.create({ name, link, owner: id })
+  return Card.create({ name, link, owner: userId })
     .then((card) => {
-      res.status(201).send(card);
+      if (!card) throw new BadRequestError();
+
+      res.status(STATUS_CODES.CREATED).send({ message: 'Новая карточка создана!', card });
     })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-export const deleteCard = (req: Request, res: Response) => {
+export const deleteCard: RequestHandler = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .then(() => {
-      res.status(200).send({ message: 'Карточка удалена!' });
+    .then((card) => {
+      if (!card) throw new NotFoundError(`Карточка с id(${cardId} не найден!`);
+
+      res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId} удалена!`, card });
     })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const updateLike = (method: string, req: Request, res: Response) => {
+const updateLike: RequestHandler = (req, res, next) => {
   const userId = req.user._id;
   const { cardId } = req.params;
+  const { method } = res.locals;
 
   Card.findByIdAndUpdate(
     cardId,
@@ -47,13 +48,31 @@ const updateLike = (method: string, req: Request, res: Response) => {
     { new: true },
   )
     .then((card) => {
-      res.status(200).send(card);
+      if (!card) throw new NotFoundError(`Карточка с id(${cardId} не найден!`);
+
+      res.status(STATUS_CODES.OK)
+        .send({
+          message: `Лайк ${method === '$addToSet'
+            ? 'добавлен'
+            : 'удалён'}!`,
+          card,
+        });
     })
     .catch((err) => {
-      res.status(500).send({ message: err.message });
+      let error = err;
+
+      if (err.name === 'ValidationError') error = new BadRequestError();
+
+      next(error);
     });
 };
 
-export const likeCard = (req: Request, res: Response) => updateLike('$addToSet', req, res);
+export const likeCard: RequestHandler = (req, res, next) => {
+  res.locals.method = '$addToSet';
+  updateLike(req, res, next);
+};
 
-export const dislikeCard = (req: Request, res: Response) => updateLike('$pull', req, res);
+export const dislikeCard: RequestHandler = (req, res, next) => {
+  res.locals.method = '$pull';
+  updateLike(req, res, next);
+};
