@@ -12,7 +12,6 @@ export const getUsers: RequestHandler = (req, res, next) => {
     .catch(next);
 };
 
-// попробовал в одном месте использовать .orFail
 export const getUser: RequestHandler = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
