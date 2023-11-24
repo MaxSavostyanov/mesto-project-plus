@@ -27,7 +27,7 @@ export const deleteCard: RequestHandler = (req, res, next) => {
   const { cardId } = req.params;
 
   Card.findByIdAndRemove(cardId)
-    .orFail(new NotFoundError(`Карточка с id(${cardId} не найден!`))
+    .orFail(new NotFoundError(`Карточка с id(${cardId}) не найдена!`))
     .then((card) => {
       res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId} удалена!`, card });
     })
@@ -44,7 +44,7 @@ const updateLike: RequestHandler = (req, res, next) => {
     { [method]: { likes: userId } },
     { new: true },
   )
-    .orFail(new NotFoundError(`Карточка с id(${cardId} не найден!`))
+    .orFail(new NotFoundError(`Карточка с id(${cardId}) не найдена!`))
     .then((card) => {
       res.status(STATUS_CODES.OK)
         .send({
