@@ -30,8 +30,6 @@ export const createUser: RequestHandler = (req, res, next) => {
 
   return User.create({ name, about, avatar })
     .then((user) => {
-      if (!user) throw new BadRequestError();
-
       res.status(STATUS_CODES.CREATED).send({ message: 'Новый пользователь создан!', user });
     })
     .catch(next);

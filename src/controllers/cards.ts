@@ -18,8 +18,6 @@ export const createCard: RequestHandler = (req, res, next) => {
 
   return Card.create({ name, link, owner: userId })
     .then((card) => {
-      if (!card) throw new BadRequestError();
-
       res.status(STATUS_CODES.CREATED).send({ message: 'Новая карточка создана!', card });
     })
     .catch(next);
