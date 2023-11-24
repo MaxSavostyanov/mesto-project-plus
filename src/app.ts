@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import router from './routes';
 import errorHandler from './middlewares/error-handler';
+import NotFoundError from './errors/not-found-error';
 
 const { PORT = 3000 } = process.env;
 

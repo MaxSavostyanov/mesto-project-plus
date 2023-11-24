@@ -1,9 +1,9 @@
 import { model, Schema } from 'mongoose';
 
 export interface IUser {
-  name?: string;
-  about?: string;
-  avatar?: string;
+  name: string;
+  about: string;
+  avatar: string;
 }
 
 const UserSchema = new Schema<IUser>({
