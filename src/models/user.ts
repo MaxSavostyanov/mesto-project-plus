@@ -1,9 +1,12 @@
 import { model, Schema } from 'mongoose';
+import validator from 'validator';
 
 export interface IUser {
   name: string;
   about: string;
   avatar: string;
+  email: string;
+  password: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -22,6 +25,22 @@ const UserSchema = new Schema<IUser>({
   avatar: {
     type: String,
     required: true,
+  },
+  email: {
+    type: String,
+    require: true,
+    unique: true,
+    validate: {
+      validator(email: string) {
+        return validator.isEmail(email);
+      },
+      message: 'Некорректный Email',
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+    // select:
   },
 });
 
