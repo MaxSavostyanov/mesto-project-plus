@@ -1,5 +1,9 @@
-import { model, Schema } from 'mongoose';
+import {
+  model, Schema, Model, Document,
+} from 'mongoose';
 import validator from 'validator';
+import bcrypt from 'bcrypt';
+import UnauthorizedError from '../errors/unauthorized-error';
 
 export interface IUser {
   name: string;
@@ -7,6 +11,11 @@ export interface IUser {
   avatar: string;
   email: string;
   password: string;
+}
+
+export interface UserModel extends Model<IUser> {
+  // eslint-disable-next-line no-unused-vars
+  findUserByCredentials: (email: string, password: string) => Promise<Document<unknown, any, IUser>>
 }
 
 const UserSchema = new Schema<IUser>({
@@ -47,4 +56,22 @@ const UserSchema = new Schema<IUser>({
   },
 });
 
-export default model<IUser>('user', UserSchema);
+UserSchema.static('findUserByCredentials', function findUserByCredentials(email: string, password: string) {
+  return this.findOne({ email })
+    .then((user: IUser) => {
+      if (!user) {
+        return Promise.reject(new UnauthorizedError());
+      }
+
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return Promise.reject(new UnauthorizedError());
+          }
+
+          return user;
+        });
+    });
+});
+
+export default model<IUser, UserModel>('user', UserSchema);
