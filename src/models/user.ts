@@ -52,12 +52,12 @@ const UserSchema = new Schema<IUser>({
   password: {
     type: String,
     required: true,
-    // select:
+    select: false,
   },
 });
 
 UserSchema.static('findUserByCredentials', function findUserByCredentials(email: string, password: string) {
-  return this.findOne({ email })
+  return this.findOne({ email }).select('+password')
     .then((user: IUser) => {
       if (!user) {
         return Promise.reject(new UnauthorizedError());
