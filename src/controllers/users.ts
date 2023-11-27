@@ -13,13 +13,21 @@ export const getUsers: RequestHandler = (req, res, next) => {
     .catch(next);
 };
 
-export const getUser: RequestHandler = (req, res, next) => {
+export const getUserById: RequestHandler = (req, res, next) => {
   const { userId } = req.params;
   User.findById(userId)
     .orFail(new NotFoundError(`Пользователь с id(${userId}) не найден!`))
     .then((user) => {
       res.status(STATUS_CODES.OK).send({ message: `Пользователь с id(${userId})найден!`, user });
     })
+    .catch(next);
+};
+
+export const getUserMe: RequestHandler = (req, res, next) => {
+  const userId = req.user;
+
+  return User.findById(userId)
+    .then((user) => res.status(STATUS_CODES.OK).send(user))
     .catch(next);
 };
 
