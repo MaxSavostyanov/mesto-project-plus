@@ -13,14 +13,6 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.use(cookieParser());
 
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-  req.user = {
-    _id: '655e5c481c083c265c69b8d6',
-  };
-
-  next();
-});
-
 app.use(router);
 
 app.use(() => {
