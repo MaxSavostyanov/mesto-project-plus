@@ -6,14 +6,15 @@ import {
   updateProfile,
   updateAvatar,
 } from '../controllers/users';
+import { validateID, validateUpdateAvatar, validateUpdateProfile } from '../middlewares/validators';
 
 const router = Router();
 
 router.get('/', getUsers);
-router.get('/:userId', getUserById);
+router.get('/:userId', validateID, getUserById);
 
 router.get('/me', getUserMe);
-router.patch('/me', updateProfile);
-router.patch('/me/avatar', updateAvatar);
+router.patch('/me', validateUpdateProfile, updateProfile);
+router.patch('/me/avatar', validateUpdateAvatar, updateAvatar);
 
 export default router;

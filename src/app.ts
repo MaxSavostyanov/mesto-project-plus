@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import cookieParser from 'cookie-parser';
+import { errors } from 'celebrate';
 import router from './routes';
 import errorHandler from './middlewares/error-handler';
 import NotFoundError from './errors/not-found-error';
@@ -21,6 +22,7 @@ app.use(() => {
 });
 
 app.use(errorLogger);
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {
