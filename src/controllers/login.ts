@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user';
 import STATUS_CODES from '../constants/status-code';
 
+const { SECRET_KEY } = require('../../config');
+
 const login: RequestHandler = (req, res, next) => {
   const { email, password } = req.body;
 
@@ -10,7 +12,7 @@ const login: RequestHandler = (req, res, next) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'some-secret-key',
+        SECRET_KEY as string,
         { expiresIn: '7d' },
       );
 
