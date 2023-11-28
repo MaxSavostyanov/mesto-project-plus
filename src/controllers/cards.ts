@@ -39,8 +39,8 @@ export const deleteCard: RequestHandler = (req, res, next) => {
 
       card.remove();
     })
-    .then((card) => {
-      res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId}) удалена!`, card });
+    .then(() => {
+      res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId}) удалена!` });
     })
     .catch(next);
 };
