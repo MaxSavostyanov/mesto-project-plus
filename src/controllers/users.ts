@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/user';
 import NotFoundError from '../errors/not-found-error';
 import STATUS_CODES from '../constants/status-code';
+import ConflictError from '../errors/conflict-error';
 
 export const getUsers: RequestHandler = (req, res, next) => {
   User.find({})
@@ -43,7 +44,13 @@ export const createUser: RequestHandler = (req, res, next) => {
     .then((user) => {
       res.status(STATUS_CODES.CREATED).send({ message: 'Новый пользователь создан!', user });
     })
-    .catch(next);
+    .catch((err) => {
+      let error = err;
+
+      if (error.code === 11000) error = new ConflictError('Пользователь с таким email уже зарегестрирован!');
+
+      next(error);
+    });
 };
 
 const updateUser: RequestHandler = (req, res, next) => {
