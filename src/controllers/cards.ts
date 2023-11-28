@@ -1,6 +1,7 @@
 import type { RequestHandler } from 'express';
 import Card from '../models/card';
 import NotFoundError from '../errors/not-found-error';
+import ForbiddenError from '../errors/forbidden-error';
 import STATUS_CODES from '../constants/status-code';
 
 export const getCards: RequestHandler = (req, res, next) => {
@@ -25,11 +26,21 @@ export const createCard: RequestHandler = (req, res, next) => {
 
 export const deleteCard: RequestHandler = (req, res, next) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
 
-  Card.findByIdAndRemove(cardId)
+  Card.findById(cardId)
     .orFail(new NotFoundError(`Карточка с id(${cardId}) не найдена!`))
     .then((card) => {
-      res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId} удалена!`, card });
+      const ownerId = String(card.owner);
+
+      if (ownerId !== userId) {
+        throw new ForbiddenError('Удаление чужой карточки невозможно!');
+      }
+
+      card.remove();
+    })
+    .then((card) => {
+      res.status(STATUS_CODES.OK).send({ message: `Карточка с id(${cardId}) удалена!`, card });
     })
     .catch(next);
 };
